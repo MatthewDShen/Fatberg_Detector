@@ -5,7 +5,7 @@ from swmm.toolkit.shared_enum import NodeAttribute
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-input_file = '/home/matthewdshen/GitHub/Fatberg_Detector/test/Test_Network_fatberg.inp'
+input_file = '/home/matthewdshen/GitHub/Fatberg_Detector/test/Test_Network_clear.inp'
 
 def get_inflow(input_file,n_node):
   ''' function to get the total inflow from one node at all steps in the simulation and save it in a dataframe '''
@@ -40,7 +40,6 @@ def get_inflow(input_file,n_node):
 
     return df_node
 
-# combine all nodes into one dataframe
 def combine_allnodes(input_file, node_num):
   ''' function to combine inflow and time step data from all nodes from input file into one dataframe 
       Inputs are simulation file path and list of node numbers'''
@@ -60,8 +59,7 @@ def combine_allnodes(input_file, node_num):
 node_list = ['J1','J2','J3','J4','J5','J6','J7','J8','J9','J10','J11','J12']
 
 # create dataframe with simulation data for all nodes
-allflow=combine_allnodes(input_file, node_list)
-allflow
+allflow = combine_allnodes(input_file, node_list)
 
 plt.figure(figsize=(20, 5), dpi=100)
 
@@ -72,4 +70,4 @@ plt.title("flows at each node")
 plt.ylabel("Flow (CFS)")
 plt.xlabel("Simulation Time")
 plt.legend(loc="upper right")
-plt.show()
+plt.savefig("/home/matthewdshen/GitHub/Fatberg_Detector/images/1images.png")

@@ -14,7 +14,12 @@ def func_add_fatberg(str_path):
     Inputs: path of input file
     Output: report file
     '''
-    with pyswmm.Simulation(str_path) as sim:
+    
+
+
+func_add_fatberg(str_path)
+
+with pyswmm.Simulation(str_path) as sim:
         lst_linkids = []
 
         for link in pyswmm.Links(sim):
@@ -29,10 +34,6 @@ def func_add_fatberg(str_path):
         inp[swmm_api.input_file.section_labels.XSECTIONS][fatberg_link].transect = .75
 
         inp.write_file('/home/matthewdshen/GitHub/Fatberg_Detector/test/Test_Network_fatberg.inp')
-
-
-func_add_fatberg(str_path)
-
 
 
 

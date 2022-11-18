@@ -1,0 +1,202 @@
+[TITLE]
+;;Project Title/Notes
+
+[OPTIONS]
+;;Option             Value
+FLOW_UNITS           CFS
+INFILTRATION         HORTON
+FLOW_ROUTING         KINWAVE
+LINK_OFFSETS         DEPTH
+MIN_SLOPE            0
+ALLOW_PONDING        NO
+SKIP_STEADY_STATE    NO
+
+START_DATE           11/15/2022
+START_TIME           00:00:00
+REPORT_START_DATE    11/15/2022
+REPORT_START_TIME    00:00:00
+END_DATE             11/15/2022
+END_TIME             06:00:00
+SWEEP_START          1/1
+SWEEP_END            12/31
+DRY_DAYS             0
+REPORT_STEP          00:15:00
+WET_STEP             00:05:00
+DRY_STEP             01:00:00
+ROUTING_STEP         0:00:30 
+RULE_STEP            00:00:00
+
+INERTIAL_DAMPING     PARTIAL
+NORMAL_FLOW_LIMITED  BOTH
+FORCE_MAIN_EQUATION  H-W
+VARIABLE_STEP        0.75
+LENGTHENING_STEP     0
+MIN_SURFAREA         0
+MAX_TRIALS           0
+HEAD_TOLERANCE       0
+SYS_FLOW_TOL         5
+LAT_FLOW_TOL         5
+MINIMUM_STEP         0.5
+THREADS              1
+
+[EVAPORATION]
+;;Data Source    Parameters
+;;-------------- ----------------
+CONSTANT         0.0
+DRY_ONLY         NO
+
+[JUNCTIONS]
+;;Name           Elevation  MaxDepth   InitDepth  SurDepth   Aponded   
+;;-------------- ---------- ---------- ---------- ---------- ----------
+H0               0          0          0          0          0         
+H1               0          0          0          0          0         
+H2               0          0          0          0          0         
+J0               0          0          0          0          0         
+J1               0          0          0          0          0         
+J2               0          0          0          0          0         
+J9               0          0          0          0          0         
+J10              0          0          0          0          0         
+J11              0          0          0          0          0         
+J12              0          0          0          0          0         
+J4               0          0          0          0          0         
+J7               0          0          0          0          0         
+J6               0          0          0          0          0         
+J8               0          0          0          0          0         
+H6               0          0          0          0          0         
+H7               0          0          0          0          0         
+H8               0          0          0          0          0         
+J3               0          0          0          0          0         
+J5               0          0          0          0          0         
+H3               0          0          0          0          0         
+H4               0          0          0          0          0         
+H5               0          0          0          0          0         
+
+[OUTFALLS]
+;;Name           Elevation  Type       Stage Data       Gated    Route To        
+;;-------------- ---------- ---------- ---------------- -------- ----------------
+24               0          FREE                        NO                       
+
+[STORAGE]
+;;Name           Elev.    MaxDepth   InitDepth  Shape      Curve Name/Params            N/A      Fevap    Psi      Ksat     IMD     
+;;-------------- -------- ---------- ----------- ---------- ---------------------------- -------- --------          -------- --------
+23               0        0          0          FUNCTIONAL 1000      0         0        0        0       
+
+[CONDUITS]
+;;Name           From Node        To Node          Length     Roughness  InOffset   OutOffset  InitFlow   MaxFlow   
+;;-------------- ---------------- ---------------- ---------- ---------- ---------- ---------- ---------- ----------
+1                H0               J0               400        0.01       0          0          0          0         
+2                H1               J1               400        0.01       0          0          0          0         
+3                H2               J2               400        0.01       0          0          0          0         
+4                H3               J3               400        0.01       0          0          0          0         
+5                H4               J4               400        0.01       0          0          0          0         
+6                H5               J5               400        0.01       0          0          0          0         
+7                H6               J6               400        0.01       0          0          0          0         
+8                H7               J7               400        0.01       0          0          0          0         
+9                H8               J8               400        0.01       0          0          0          0         
+10               J0               J1               400        0.01       0          0          0          0         
+11               J2               J1               400        0.01       0          0          0          0         
+12               J3               J4               400        0.01       0          0          0          0         
+13               J5               J4               400        0.01       0          0          0          0         
+14               J6               J7               400        0.01       0          0          0          0         
+15               J8               J7               400        0.01       0          0          0          0         
+16               J1               J9               400        0.01       0          0          0          0         
+17               J9               J10              400        0.01       0          0          0          0         
+18               J4               J10              400        0.01       0          0          0          0         
+19               J7               J10              400        0.01       0          0          0          0         
+20               J10              J11              400        0.01       0          0          0          0         
+21               J11              J12              400        0.01       0          0          0          0         
+22               J12              23               400        0.01       0          0          0          0         
+
+[OUTLETS]
+;;Name           From Node        To Node          Offset     Type            QTable/Qcoeff    Qexpon     Gated   
+;;-------------- ---------------- ---------------- ---------- --------------- ---------------- ---------- --------
+23               23               24               0          FUNCTIONAL/DEPTH 10.0             0.5        NO      
+
+[XSECTIONS]
+;;Link           Shape        Geom1            Geom2      Geom3      Geom4      Barrels    Culvert   
+;;-------------- ------------ ---------------- ---------- ---------- ---------- ---------- ----------
+1                FILLED_CIRCULAR     1                0.75          0          0          1                    
+2                CIRCULAR     1                0          0          0          1                    
+3                CIRCULAR     1                0          0          0          1                    
+4                CIRCULAR     1                0          0          0          1                    
+5                CIRCULAR     1                0          0          0          1                    
+6                CIRCULAR     1                0          0          0          1                    
+7                CIRCULAR     1                0          0          0          1                    
+8                CIRCULAR     1                0          0          0          1                    
+9                CIRCULAR     1                0          0          0          1                    
+10               CIRCULAR     1                0          0          0          1                    
+11               CIRCULAR     1                0          0          0          1                    
+12               CIRCULAR     1                0          0          0          1                    
+13               CIRCULAR     1                0          0          0          1                    
+14               CIRCULAR     1                0          0          0          1                    
+15               CIRCULAR     1                0          0          0          1                    
+16               CIRCULAR     1                0          0          0          1                    
+17               CIRCULAR     1                0          0          0          1                    
+18               CIRCULAR     1                0          0          0          1                    
+19               CIRCULAR     1                0          0          0          1                    
+20               CIRCULAR     1                0          0          0          1                    
+21               CIRCULAR     1                0          0          0          1                    
+22               CIRCULAR     1                0          0          0          1                    
+
+[DWF]
+;;Node           Constituent      Baseline   Patterns  
+;;-------------- ---------------- ---------- ----------
+H0               FLOW             10         ""
+H1               FLOW             10         ""
+H2               FLOW             10         ""
+H6               FLOW             10         ""
+H7               FLOW             10         ""
+H8               FLOW             10         ""
+H3               FLOW             10         ""
+H4               FLOW             10         ""
+H5               FLOW             10         ""
+
+[REPORT]
+;;Reporting Options
+SUBCATCHMENTS ALL
+NODES ALL
+LINKS ALL
+
+[TAGS]
+
+[MAP]
+DIMENSIONS 0.000 0.000 10000.000 10000.000
+Units      None
+
+[COORDINATES]
+;;Node           X-Coord            Y-Coord           
+;;-------------- ------------------ ------------------
+H0               0.000              1000.000          
+H1               0.000              500.000           
+H2               0.000              0.000             
+J0               100.000            1000.000          
+J1               100.000            500.000           
+J2               100.000            0.000             
+J9               1100.000           500.000           
+J10              2100.000           500.000           
+J11              3100.000           500.000           
+J12              4100.000           500.000           
+J4               2100.000           1500.000          
+J7               2100.000           -500.000          
+J6               1600.000           -500.000          
+J8               2700.000           -500.000          
+H6               1600.000           -600.000          
+H7               2100.000           -600.000          
+H8               2700.000           -600.000          
+J3               1600.000           1500.000          
+J5               2700.000           1500.000          
+H3               1600.000           1600.000          
+H4               2100.000           1600.000          
+H5               2700.000           1600.000          
+24               5100.000           0.000             
+23               5100.000           500.000           
+
+[VERTICES]
+;;Link           X-Coord            Y-Coord           
+;;-------------- ------------------ ------------------
+
+
+[PROFILES]
+;;Name           Links     
+;;-------------- ----------
+"                " 2 11 3
