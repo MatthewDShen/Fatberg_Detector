@@ -5,7 +5,9 @@ from swmm.toolkit.shared_enum import NodeAttribute
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-input_file = '/home/matthewdshen/GitHub/Fatberg_Detector/test/Test_Network_clear.inp'
+clean_input_file = 'test/Test_Network_clear.inp'
+
+dirty_input_file = 'test/Test_Network_dirty.inp'
 
 def get_inflow(input_file,n_node):
   ''' function to get the total inflow from one node at all steps in the simulation and save it in a dataframe '''
@@ -58,16 +60,30 @@ def combine_allnodes(input_file, node_num):
 # list of node names
 node_list = ['J1','J2','J3','J4','J5','J6','J7','J8','J9','J10','J11','J12']
 
-# create dataframe with simulation data for all nodes
-allflow = combine_allnodes(input_file, node_list)
 
-plt.figure(figsize=(20, 5), dpi=100)
+def plot_flows(input_file,node_list):
 
-for n in node_list:
-  plt.plot(allflow[n], linewidth=2.0, label = n)
+  
+  # create dataframe with simulation data for all nodes
+  allflow = combine_allnodes(input_file, node_list)
 
-plt.title("flows at each node")
-plt.ylabel("Flow (CFS)")
-plt.xlabel("Simulation Time")
-plt.legend(loc="upper right")
-plt.savefig("/home/matthewdshen/GitHub/Fatberg_Detector/images/1images.png")
+  plt.figure(figsize=(20, 5), dpi=100)
+
+  for n in node_list:
+    plt.plot(allflow[n], linewidth=2.0, label = n)
+
+  plt.title("flows at each node")
+  plt.ylabel("Flow (CFS)")
+  plt.xlabel("Simulation Time")
+  plt.legend(loc="upper right")
+  plt.savefig("/home/matthewdshen/GitHub/Fatberg_Detector/images/imagd.png")
+
+df_clean = combine_allnodes(clean_input_file,node_list)
+
+df_dirty = combine_allnodes(dirty_input_file,node_list)
+
+df_delta = df_clean - df_dirty
+
+df_delta_avg = df_delta.mean()
+
+print(df_delta_avg)
