@@ -3,6 +3,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from swmm.toolkit.shared_enum import NodeAttribute
 
+str_clean_input_file = 'swmm_files/clean/Test_Network_clean.inp'
+
+str_dirty_input_file = 'swmm_files/dirty/Test_Network_dirty16.inp'
+
 def get_inflow(input_file,n_node):
   ''' function to get the total inflow from one node at all steps in the simulation and save it in a dataframe '''
 
@@ -72,11 +76,61 @@ def plot_flows(input_file,node_list):
   plt.savefig("images/flow_fig.png") # save figure
 
 def node_list(input_file):
-  
+  '''Get list of nodes given the input file'''
+  # Run simulation
   sim = pyswmm.Simulation(input_file)
+
+  # Pull nodes from simulation
   nodes = pyswmm.Nodes(sim)
+
+  # Initialize list of nodes
   node_lst = []
 
+  # Add nodes to a list
   for node in nodes:
     node_lst.append(node.nodeid)
+    
   return node_lst
+
+def link_list(input_file):
+  '''Get list of links given the input file'''
+  # Run simulation
+  sim = pyswmm.Simulation(input_file)
+
+  # Pull nodes from simulation
+  links = pyswmm.Links(sim)
+
+  # Initialize list of nodes
+  link_lst = []
+
+  # Add nodes to a list
+  for link in links:
+    link_lst.append(link.linkid)
+    
+  return link_lst
+
+
+# Get list of all the nodes
+node_lst = node_list(str_clean_input_file)
+
+# Get dataframe with all flows without fatberg
+df_clean_flows = combine_allnodes(str_clean_input_file,node_lst)
+
+# Get dataframe with all flows with fatberg
+df_dirty_flows = combine_allnodes(str_dirty_input_file,node_lst)
+
+# Get the difference in flows between clean and dirty with the mean
+df_delta_flows = df_clean_flows.mean() - df_dirty_flows.mean()
+
+# Get downstream node of fatberg link
+str_downstream_fatberg_node = df_delta_flows.idxmax()
+
+
+
+
+
+with pyswmm.Simulation(str_clean_input_file) as sim:
+  for link in pyswmm.Links(sim):
+    print(list(link.linkid , link.connections))
+  
+
