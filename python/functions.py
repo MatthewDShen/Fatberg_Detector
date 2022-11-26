@@ -1,11 +1,7 @@
-import pyswmm
+import pyswmm, random
 import pandas as pd
 import matplotlib.pyplot as plt
 from swmm.toolkit.shared_enum import NodeAttribute
-
-str_clean_input_file = 'swmm_files/clean/Test_Network_clean.inp'
-
-str_dirty_input_file = 'swmm_files/dirty/Test_Network_dirty16.inp'
 
 def get_inflow(input_file,n_node):
   ''' function to get the total inflow from one node at all steps in the simulation and save it in a dataframe '''
@@ -21,7 +17,7 @@ def get_inflow(input_file,n_node):
     # Initialize nodes and links objects
     nodes = pyswmm.Nodes(sim)
 
-    # Specify the link or nodes that we are interested in monitoring
+    # Specify the node we are interested in monitoring
     node = nodes[n_node]
   
     # itterate through each step in simulation
@@ -36,6 +32,9 @@ def get_inflow(input_file,n_node):
 
     # create dataframe with step data for that node and update column name
     df_node = pd.DataFrame(total_inflow, simulation_time)
+
+    print(df_node)
+
     df_node.columns =[n_node]
 
     return df_node
@@ -109,28 +108,69 @@ def link_list(input_file):
     
   return link_lst
 
+def get_fatberg_dataframe(str_clean_input_file,str_dirty_input_file,node_lst):
 
-# Get list of all the nodes
-node_lst = node_list(str_clean_input_file)
+  # Get dataframe with all flows without fatberg
+  df_clean_flows = combine_allnodes(str_clean_input_file,node_lst)
 
-# Get dataframe with all flows without fatberg
-df_clean_flows = combine_allnodes(str_clean_input_file,node_lst)
+  # Get dataframe with all flows with fatberg
+  df_dirty_flows = combine_allnodes(str_dirty_input_file,node_lst)
 
-# Get dataframe with all flows with fatberg
-df_dirty_flows = combine_allnodes(str_dirty_input_file,node_lst)
+  # Get the difference in flows between clean and dirty with the mean
+  df_delta_flows = df_clean_flows.mean() - df_dirty_flows.mean()
 
-# Get the difference in flows between clean and dirty with the mean
-df_delta_flows = df_clean_flows.mean() - df_dirty_flows.mean()
+  # Get downstream node of fatberg link
+  str_downstream_fatberg_node = df_delta_flows.idxmax()
 
-# Get downstream node of fatberg link
-str_downstream_fatberg_node = df_delta_flows.idxmax()
+  # Run simulation
+  sim = pyswmm.Simulation(str_clean_input_file)
 
+  # Initialize lists
+  upstream_node = []
+  downstream_node = []
 
-
-
-
-with pyswmm.Simulation(str_clean_input_file) as sim:
   for link in pyswmm.Links(sim):
-    print(list(link.linkid , link.connections))
-  
+    # Append upstream node to link
+    upstream_node.append(link.connections[0])
+
+    # Append downstream node to link
+    downstream_node.append(link.connections[1])
+
+  # Get list of all links in system
+  lst_links = link_list(str_clean_input_file)
+
+  # Create dataframe with link names, upstream nodes, and downstream nodes
+  df_links = pd.DataFrame(data = {'link name': lst_links,'upstream node': upstream_node,'downstream node': downstream_node})
+
+  # Get name of starting links with a suspected fatberg
+  df_search_links = df_links[df_links['downstream node'] == str_downstream_fatberg_node].reset_index()
+
+  # initalize variables for loop
+  df_suspect_links = pd.DataFrame()
+
+
+  # loop through search links dataframe until empty
+  while len(df_search_links) > 0:
+
+    # Check if upstream values need to be added to search
+    if df_delta_flows[df_search_links['upstream node'][0]] != 0: # If the flow delta between clean and dirty at the search junction is equal to 0 
+      
+      # Find links that are upstream of the search link
+      df_upstream = df_links[df_links['downstream node'] == df_search_links['upstream node'][0]]
+
+      # Add upstream links to search dataframe
+      df_search_links = pd.concat([df_search_links,df_upstream], ignore_index= True)
+
+    # add searched link to suspected link
+    df_suspect_links = pd.concat([df_suspect_links,df_search_links.iloc[0]])
+
+    # Drop searched row
+    df_search_links = df_search_links.iloc[1: , :]
+
+
+  return df_suspect_links
+
+
+get_inflow('swmm_files/clean/Test_Network_clean.inp')
+
 
