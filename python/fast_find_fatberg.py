@@ -4,7 +4,7 @@ import random, pyswmm, pandas as pd, swmm.toolkit
 str_inp_clean = 'swmm_files/clean/Test_Network_clean.inp'
 
 # Dirty path file inp
-str_inp_dirty = 'swmm_files/dirty/Test_Network_dirty' + str(random.randint(0,22)) + '.inp'
+str_inp_dirty = 'swmm_files/dirty/Test_Network_dirty17' + str(random.randint(0,22)) + '.inp'
 
 # Run clean simulation
 sim_clean = pyswmm.Simulation(str_inp_clean)
@@ -42,29 +42,9 @@ for link in pyswmm.Links(sim_clean):
     upstream_node.append(link.connections[0])
 
     # Append downstream node to link
-    downstream_node.append(link.connections[1])
+    downstream_node.append(link.connections[1]) 
 
 
-# Clean path file out    
-str_out_clean = str_inp_clean[:-4] + '.out'  
-    
-# Dirty path file out    
-str_out_dirty = str_inp_dirty[:-4] + '.out'   
-
-# Save inflows to dataframe
-lst_inflow = []
-
-out = pyswmm.output.Output(str_out_dirty)
-
-# Get total inflow from output file
-data = out.node_attribute(swmm.toolkit.shared_enum.NodeAttribute.TOTAL_INFLOW)
-
-# Store inflow data
-for object in data:
-    # print(object, data[object]) 
-    lst_inflow.append(data[object]) 
-
-print(lst_inflow)
 
 
 
@@ -75,3 +55,5 @@ df_sim = pd.DataFrame(data = {
 })
 
 print('')
+
+print(df_dirty_flows)

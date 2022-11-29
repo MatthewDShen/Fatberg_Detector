@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from swmm.toolkit.shared_enum import NodeAttribute
 
+
+
 def get_inflow(input_file,n_node):
   ''' function to get the total inflow from one node at all steps in the simulation and save it in a dataframe '''
 
@@ -32,8 +34,6 @@ def get_inflow(input_file,n_node):
 
     # create dataframe with step data for that node and update column name
     df_node = pd.DataFrame(total_inflow, simulation_time)
-
-    print(df_node)
 
     df_node.columns =[n_node]
 
@@ -108,8 +108,8 @@ def link_list(input_file):
     
   return link_lst
 
-def get_fatberg_dataframe(str_clean_input_file,str_dirty_input_file,node_lst):
-
+def get_delta_flows(str_clean_input_file,str_dirty_input_file,node_lst):
+  '''Gives a dataframe with the change in flow between a clean and dirty network'''
   # Get dataframe with all flows without fatberg
   df_clean_flows = combine_allnodes(str_clean_input_file,node_lst)
 
@@ -119,9 +119,10 @@ def get_fatberg_dataframe(str_clean_input_file,str_dirty_input_file,node_lst):
   # Get the difference in flows between clean and dirty with the mean
   df_delta_flows = df_clean_flows.mean() - df_dirty_flows.mean()
 
-  # Get downstream node of fatberg link
-  str_downstream_fatberg_node = df_delta_flows.idxmax()
+  return df_delta_flows
 
+def get_df_links(str_clean_input_file):
+  '''Get a dataframe with the links and their respective upstream and downstream networks'''
   # Run simulation
   sim = pyswmm.Simulation(str_clean_input_file)
 
@@ -142,35 +143,111 @@ def get_fatberg_dataframe(str_clean_input_file,str_dirty_input_file,node_lst):
   # Create dataframe with link names, upstream nodes, and downstream nodes
   df_links = pd.DataFrame(data = {'link name': lst_links,'upstream node': upstream_node,'downstream node': downstream_node})
 
+  return df_links
+
+def search_links(str_clean_input_file,str_dirty_input_file,node_lst):
+  '''Get a list of all the suspected links with a fatberg'''
+  # Get delta flows
+  df_delta_flows = get_delta_flows(str_clean_input_file,str_dirty_input_file,node_lst)
+
+  # Get links geometory
+  df_links = get_df_links(str_clean_input_file)
+
+  # Get downstream node of fatberg link
+  str_downstream_fatberg_node = df_delta_flows.idxmax()
+
   # Get name of starting links with a suspected fatberg
   df_search_links = df_links[df_links['downstream node'] == str_downstream_fatberg_node].reset_index()
 
-  # initalize variables for loop
-  df_suspect_links = pd.DataFrame()
-
+  # initalize suspected links list
+  lst_suspect_links = []
 
   # loop through search links dataframe until empty
   while len(df_search_links) > 0:
+    
+    # Get single link we are searching
+    df_single_search_link = df_search_links.iloc[0 , :]
 
-    # Check if upstream values need to be added to search
-    if df_delta_flows[df_search_links['upstream node'][0]] != 0: # If the flow delta between clean and dirty at the search junction is equal to 0 
-      
-      # Find links that are upstream of the search link
-      df_upstream = df_links[df_links['downstream node'] == df_search_links['upstream node'][0]]
+    # Add inital search links to suspected links
+    lst_suspect_links.append(df_search_links.iloc[0 , :]['link name'])
+
+
+    if df_delta_flows[df_single_search_link['upstream node']] != 0: # If the flow delta between clean and dirty at the search junction is not 0, then the fatberg is higher in the node
+      # Find next upstream links of search link
+      df_upstream = df_links[df_single_search_link['upstream node'] == df_links['downstream node']]
 
       # Add upstream links to search dataframe
-      df_search_links = pd.concat([df_search_links,df_upstream], ignore_index= True)
-
-    # add searched link to suspected link
-    df_suspect_links = pd.concat([df_suspect_links,df_search_links.iloc[0]])
+      df_search_links = pd.concat([df_search_links,df_upstream], join = 'inner', ignore_index= True)
 
     # Drop searched row
-    df_search_links = df_search_links.iloc[1: , :]
+    df_search_links = df_search_links.iloc[1: , :].reset_index(drop = True)
+
+  return lst_suspect_links
+
+def func_flows_multi_run(runs):
+  # Run program
+  for i in range(0,runs):
+    # Dirty path file inp
+    str_dirty_input_file = 'swmm_files/dirty/Test_Network_dirty' + str(random.randint(1,22)) + '.inp'
+
+    # Get list of nodes you are observing
+    node_lst = node_list(str_clean_input_file)
+
+    df = combine_allnodes(str_dirty_input_file,node_lst).mean().T
+
+    print('')
+    df.to_excel('outbound/ '+ str(i) +'.xlsx')
+
+    
+# Dirty path file inp
+str_dirty_input_file = 'swmm_files/dirty/Test_Network_dirty' + str(random.randint(1,22)) + '.inp'
 
 
-  return df_suspect_links
+# Clean file path inp
+str_clean_input_file = 'swmm_files/clean/Test_Network_clean.inp'
+  
+node_lst = ['J9','J11']
+
+# Get delta flows
+df_delta_flows = get_delta_flows(str_clean_input_file,str_dirty_input_file,node_lst)
+
+# Get links geometory
+df_links = get_df_links(str_clean_input_file)
 
 
-get_inflow('swmm_files/clean/Test_Network_clean.inp')
+# Get downstream node of fatberg link
+str_downstream_fatberg_node = df_delta_flows.idxmax()
+
+# Get name of starting links with a suspected fatberg
+df_search_links = df_links[df_links['downstream node'] == str_downstream_fatberg_node].reset_index()
+
+# initalize suspected links list
+lst_suspect_links = []
+
+# loop through search links dataframe until empty
+while len(df_search_links) > 0:
+  
+  # Get single link we are searching
+  df_single_search_link = df_search_links.iloc[0 , :]
+
+  # Add inital search links to suspected links
+  lst_suspect_links.append(df_search_links.iloc[0 , :]['link name'])
+
+  if df_delta_flows[df_single_search_link['upstream node']] != 0: # If the flow delta between clean and dirty at the search junction is not 0, then the fatberg is higher in the node
+    
+    # Find next upstream links of search link
+    df_upstream = df_links[df_single_search_link['upstream node'] == df_links['downstream node']]
+
+    # Add upstream links to search dataframe
+    df_search_links = pd.concat([df_search_links,df_upstream], join = 'inner', ignore_index= True)
+
+  # Drop searched row
+  df_search_links = df_search_links.iloc[1: , :].reset_index(drop = True)
+
+print('')
+print(lst_suspect_links)
+
+
+
 
 
