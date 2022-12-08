@@ -1,59 +1,54 @@
-import random, pyswmm, pandas as pd, swmm.toolkit
+import pandas as pd
+import pyswmm
+import random
+import swmm.toolkit
+import sys
 
 # Clean file path inp
-str_inp_clean = 'swmm_files/clean/Test_Network_clean.inp'
+str_inp_clean = '/home/matthewdshen/GitHub/fatberg_detector/swmm_files/clean/Test_Network_clean.inp'
 
 # Dirty path file inp
-str_inp_dirty = 'swmm_files/dirty/Test_Network_dirty17' + str(random.randint(0,22)) + '.inp'
+str_inp_dirty = '/home/matthewdshen/GitHub/fatberg_detector/swmm_files/dirty/Test_Network_dirty1.inp'
 
-# Run clean simulation
+# Set up clean simulation
 sim_clean = pyswmm.Simulation(str_inp_clean)
+# Run clean simulation
+for steps in sim_clean:
+        pass
 
+# Set up dirty simulation
+sim_dirty = pyswmm.Simulation(str_inp_dirty)
 # Run dirty simulation
-sim_dirty = pyswmm.Simulation(str_inp_clean)
+for steps in sim_dirty:
+        pass
 
 # Get nodes from simulation
-nodes = pyswmm.Nodes(sim_clean)
-
-# Initialize list of nodes
-lst_nodes = []
-
-# Add nodes to list
-for node in nodes:
-    lst_nodes.append(node.nodeid)
+lst_nodes = pyswmm.nodes.Nodes(sim_clean)
 
 # Pull links from simulation
-links = pyswmm.Links(sim_clean)
+lst_links = pyswmm.Links(sim_clean)
+    
+# List of nodes with sensors
+lst_sensor_nodes = ['J1','J9']
 
-# Initialize list of links
-lst_links = []
+# Loop through each 
 
-# Add links to a list
-for link in links:
-    lst_links.append(link.linkid)
-
-# Initialize lists
-upstream_node = []
-downstream_node = []
-
-# Get upstream and downstream links
-for link in pyswmm.Links(sim_clean):
-    # Append upstream node to link
-    upstream_node.append(link.connections[0])
-
-    # Append downstream node to link
-    downstream_node.append(link.connections[1]) 
+print(lst_nodes['J1'].cumulative_inflow)
 
 
 
 
 
-df_sim = pd.DataFrame(data = {
-    'Link ID': lst_links,
-    'upstream node': upstream_node,
-    'downstream node': downstream_node,
-})
 
-print('')
 
-print(df_dirty_flows)
+
+
+
+
+
+
+
+
+
+
+

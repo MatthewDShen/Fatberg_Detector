@@ -2,8 +2,7 @@ import pyswmm, random
 import pandas as pd
 import matplotlib.pyplot as plt
 from swmm.toolkit.shared_enum import NodeAttribute
-
-
+import sys
 
 def get_inflow(input_file,n_node):
   ''' function to get the total inflow from one node at all steps in the simulation and save it in a dataframe '''
@@ -29,7 +28,6 @@ def get_inflow(input_file,n_node):
         simulation_time.append(sim.current_time)
 
         # Log node id and total_inflow
-        #node_ids.append(node.nodeid)
         total_inflow.append(node.total_inflow)
 
     # create dataframe with step data for that node and update column name
@@ -72,7 +70,7 @@ def plot_flows(input_file,node_list):
   plt.ylabel("Flow (CFS)") # y-axis label
   plt.xlabel("Simulation Time") # x-axis label
   plt.legend(loc="upper right") # create legend
-  plt.savefig("images/flow_fig.png") # save figure
+  plt.savefig("flow_fig.png") # save figure
 
 def node_list(input_file):
   '''Get list of nodes given the input file'''
@@ -199,6 +197,10 @@ def func_flows_multi_run(runs):
     df.to_excel('outbound/ '+ str(i) +'.xlsx')
 
     
+plot_flows('/home/matthewdshen/GitHub/fatberg_detector/swmm_files/clean/Test_Network_clean.inp',node_list('/home/matthewdshen/GitHub/fatberg_detector/swmm_files/clean/Test_Network_clean.inp'))
+
+sys.exit(0)
+
 # Dirty path file inp
 str_dirty_input_file = 'swmm_files/dirty/Test_Network_dirty' + str(random.randint(1,22)) + '.inp'
 
